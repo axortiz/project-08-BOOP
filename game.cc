@@ -9,7 +9,7 @@ Node::Node(Piece* new_key, int x_loc)
 {
 }
 
-DoublyLinkedList::DoublyLinkedList() {
+DoublyLinkedList::DoublyLinkedList(){
     head = nullptr;
     tail = nullptr;
 }
@@ -23,24 +23,56 @@ void DoublyLinkedList::append(Piece* new_key, int x_loc) {
     if (empty()) {
         head = address_of_new_node;
         tail = address_of_new_node;
-        display();
         return;
+    }
+    else if(x_loc < head->location){
+        head = new_key;
+        head->next = tail;
+        tail->prev = head
+    }
+    else if(x_loc > tail->location){
+        tail->next = new_piece;
+        tail = new_key;
+    }
+    else if(x_loc > head->location){
+        Node* current = head;
+        while(x_loc > head->location){
+            current = current->next;
+        }
+        current->prev->next = new_piece;
+        new_piece->prev = current->prev;
+        current->prev = new_piece;
+        new_piece->next = current;
     }
     tail->next = address_of_new_node;
     address_of_new_node->prev = tail;
     tail = address_of_new_node;
-    display();
 }
 
-void DoublyLinkedList::display() {
-    cout << "The SLL is: ";
-    Node* current = head;
-    while (current != nullptr) {
-        current->key->display();
-        cout << ' ';
-        current = current->next;
+void Boop::display() {
+    cout << "The board is: " << endl;
+    Node* current;//How do you get access to the doublylinkedlist private
+    for(int y_axis = 0; y_axis < SIZE ; y_axis++){
+        if(game_board[y_axis].empty()){
+            for(int x = 0; x < SIZE-1 ; x++){
+                cout << "0 ";
+            }
+            cout << "0" << endl; // cout here is for spacing purposes at the end of the line
+        }
+        else{
+            current = game_board[y_axis].get_head();
+            for(int x = 0; x < SIZE-1 ; x++){
+                if()
+            }
+        }
     }
-    cout << endl;
+    // Node* current = head;
+    // while (current != nullptr) {
+    //     current->key->display();
+    //     cout << ' ';
+    //     current = current->next;
+    // }
+    // cout << endl;
 }
 
 Node* DoublyLinkedList::get_head() {
@@ -64,7 +96,7 @@ Node* DoublyLinkedList::recursive_locate(Node* current, int search_key) {
 
 Boop::Boop(string player_name_1, string player_name_2)
     : player_1(player_name_1),
-      Player_2(player_name_2),
+      player_2(player_name_2),
 {
     for (int i = 0; i < SIZE; i++) {
         DoublyLinkedList temp;
