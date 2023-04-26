@@ -26,23 +26,23 @@ void DoublyLinkedList::append(Piece* new_key, int x_loc) {
         return;
     }
     else if(x_loc < head->location){
-        head = new_key;
+        head = address_of_new_node;
         head->next = tail;
-        tail->prev = head
+        tail->prev = head;
     }
     else if(x_loc > tail->location){
-        tail->next = new_piece;
-        tail = new_key;
+        tail->next = address_of_new_node;
+        tail = address_of_new_node;
     }
     else if(x_loc > head->location){
         Node* current = head;
         while(x_loc > head->location){
             current = current->next;
         }
-        current->prev->next = new_piece;
-        new_piece->prev = current->prev;
-        current->prev = new_piece;
-        new_piece->next = current;
+        current->prev->next = address_of_new_node;
+        address_of_new_node->prev = current->prev;
+        current->prev = address_of_new_node;
+        address_of_new_node->next = current;
     }
     tail->next = address_of_new_node;
     address_of_new_node->prev = tail;
@@ -61,18 +61,36 @@ void Boop::display() {
         }
         else{
             current = game_board[y_axis].get_head();
-            for(int x = 0; x < SIZE-1 ; x++){
-                if()
+            for(int x = 0; x < SIZE ; x++){
+                int temp;
+                if(current->key == Kitten){
+                    if(Kitten.get_name() == "Player 1"){
+                        temp = 1;
+                    }
+                    else if(Kitten.get_name() == "Player 2"){
+                        temp = 3;
+                    }
+                }
+                if(current->key == Cat){
+                    if(Cat.get_name() == "Player 1"){
+                        temp = 2;
+                    }
+                    else if(Cat.get_name() == "Player 2"){
+                        temp = 4;
+                    }
+                }
+                if(current->location == x){
+                    cout << temp << ' ';
+                }
+                if(current->location != x){
+                    if(x != SIZE-1){
+                        cout << "0 ";
+                    }
+                current = current->next;
+                }
             }
         }
     }
-    // Node* current = head;
-    // while (current != nullptr) {
-    //     current->key->display();
-    //     cout << ' ';
-    //     current = current->next;
-    // }
-    // cout << endl;
 }
 
 Node* DoublyLinkedList::get_head() {
