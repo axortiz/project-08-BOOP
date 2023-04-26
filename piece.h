@@ -4,10 +4,14 @@
 #include <vector>
 using namespace std;
 
-class Piece : public Boop {
+class Piece {
 private:
-protected:
+    string player;
 public:
+    Piece();
+    Piece(string);
+    void display();
+
 };
 
 #endif
