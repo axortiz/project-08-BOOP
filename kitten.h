@@ -1,13 +1,18 @@
 #ifndef KITTEN_H
 #define KITTEN_H
 #include "piece.h"
-using namespace std;
+#include <string>
 
 class Kitten : public Piece {
 private:
+    std::string player_name;
 protected:
 public:
-    bool is_empty();
+    ~Kitten();
+    Kitten(std::string);
+    bool is_cat();
+    std::string get_name();
+    void display();
 };
 
  #endif
