@@ -1,17 +1,18 @@
 #ifndef PIECE_H
 #define PIECE_H
-#include "game.h"
-#include <vector>
-using namespace std;
+#include <string>
+
 
 class Piece {
 private:
-    string player;
+    std::string player;
 public:
     Piece();
-    Piece(string);
-    void display();
-
+    Piece(std::string);
+    ~Piece ();
+    virtual std::string get_name() = 0;
+    virtual void display() = 0;
+    virtual bool is_cat() = 0;
 };
 
 #endif
