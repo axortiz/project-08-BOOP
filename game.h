@@ -1,11 +1,10 @@
-#ifndef HEADER_H
-#define HEADER_H
-#include "board.h"
+#ifndef GAME_H
+#define GAME_H
 #include "player.h"
 #include "piece.h"
 #include <vector>
+#include <string>
 const int SIZE = 6;
-using namespace std;
 
 struct Node {
     Piece* key;
@@ -15,7 +14,7 @@ struct Node {
     Node(Piece* new_key, int x_loc);
 };
 
-struct DoublyLinkedList {
+struct DoublyLinkedList{
 private:
     Node* head;
     Node* tail;
@@ -23,7 +22,6 @@ public:
     DoublyLinkedList();
     bool empty();
     void append(Piece* new_key, int x_loc);
-    void display();
     Node* get_head();
     Node* locate(int search_key);
     Node* recursive_locate(Node* current, int search_key);
@@ -31,17 +29,29 @@ public:
 
 class Boop {
 private:
-    vector <DoublyLinkedList> game_board;
-    Player player_1;
-    Player player_2;
+    std::vector <DoublyLinkedList> game_board;
+    Player* player_1;
+    Player* player_2;
+    int player_1_cat;
+    int player_2_cat;
 protected:
 public:
-    Boop(string player_1, string player_2);
+    Boop(std::string player_1, std::string player_2);
+    void display();
+    Player* get_player(Piece*);
     void place_piece(Piece* cat_or_kitten, int x, int y);
-    vector <int> check_coordinates(int x, int y);
-    bool check_victory();
     Piece* remove_button(int x_loc, int y_loc);
+    void check_coordinates_for_boop(int x, int y);
+    void boop_piece(int x_loc, int y_loc);
     void boop_cat(int x_loc, int y_loc);
+    Piece* check_coordinates_for_three(int x, int y); 
+    Piece* check_three_in_a_row_horizontal(int x, int y, std::string path);
+    Piece* check_three_in_a_row_vertical(int x, int y, std::string path);
+    Piece* check_three_in_a_row_diagonal(int x, int y, std::string path); 
+    Player* check_eight(); 
+    Player* check_victory();
+    void player_turn(int);
+    void play_game();
 };
 
 #endif
