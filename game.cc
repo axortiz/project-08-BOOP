@@ -5,6 +5,8 @@
 #include "constants.h"
 #include "piece.h"
 #include "player.h"
+#include "kitten.h"
+#include "cat.h"
 
 using namespace std;
 using namespace constants;
@@ -32,28 +34,30 @@ void DoublyLinkedList::append(Piece* new_key, int x_loc) {
         return;
     }
     else if(x_loc < head->location){
+        head->prev = address_of_new_node;
+        address_of_new_node->next = head;
         head = address_of_new_node;
-        head->next = tail;
-        tail->prev = head;
+        head->prev = nullptr;
+        return;
     }
     else if(x_loc > tail->location){
         tail->next = address_of_new_node;
+        address_of_new_node->prev = tail;
         tail = address_of_new_node;
+        tail->next = nullptr;
+        return;
     }
     else if(x_loc > head->location){
         Node* current = head;
-        while(x_loc > head->location){
+        while(x_loc > current->location){
             current = current->next;
         }
         current->prev->next = address_of_new_node;
         address_of_new_node->prev = current->prev;
         current->prev = address_of_new_node;
         address_of_new_node->next = current;
+        return;
     }
-    tail->next = address_of_new_node;
-    address_of_new_node->prev = tail;
-    tail = address_of_new_node;
-
 }
 
 Node* DoublyLinkedList::get_head() {
@@ -67,15 +71,20 @@ Node* DoublyLinkedList::locate(int search_key) {
 
 Node* DoublyLinkedList::recursive_locate(Node* current, int search_key) {
     if (current == tail) {
+        cout << "NOT FOUND" << endl;
         return nullptr;
     }
     else if (current->location == search_key) {
+        cout << "FOUND" << endl;
         return current;
     }
     return recursive_locate(current->next, search_key);
 }
 
-Boop::Boop(string player_name_1, string player_name_2) {
+Boop::Boop(string player_name_1, string player_name_2) 
+    : player_1_cat(0),
+      player_2_cat(0)
+{
     player_1 = new Player(player_name_1);
     player_2 = new Player(player_name_2);
     for (int i = 0; i < SIZE; i++) {
@@ -147,17 +156,13 @@ Player* Boop::get_player(Piece* target_piece) {
     }
 }
 
-void Boop::place_piece(Piece* cat_or_kitten, int x, int y) {
+bool Boop::place_piece(Piece* cat_or_kitten, int x, int y) {
     if(game_board[y].locate(x) != nullptr){
+        cout << game_board[y].locate(x);
         cout << "Uh oh! That spot is already taken! Try again!" << endl;
-        if(get_player(cat_or_kitten) == player_1){
-            player_turn(1);
-        }
-        else{
-            player_turn(2);
-        }
+        return false;
     }
-    if (game_board[y].locate(x) == nullptr) {    
+    else {    
         game_board[y].append(cat_or_kitten, x);
         check_coordinates_for_boop(x, y);
         if (cat_or_kitten->is_cat()) {
@@ -168,17 +173,18 @@ void Boop::place_piece(Piece* cat_or_kitten, int x, int y) {
                 player_2_cat++;
             }
         }
+        return true;
     }
 }
 
 void Boop::check_coordinates_for_boop(int x, int y){
     Node* right = game_board[y].locate(x+1);
     if(right!=nullptr){
-        boop_piece(x, y, "right");
+        boop_piece(x+1, y, "right");
     }
     right = game_board[y].locate(x-1);
     if(right!=nullptr){
-       boop_piece(x, y, "left");
+       boop_piece(x-1, y, "left");
     }
     if (y != 0) {
         Node* top = game_board[y-1].locate(x);
@@ -248,9 +254,9 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
             }
         }
         else{
-            if(check_boop_path(x_loc-1, y_loc)){
+            if(check_boop_path(x_loc+1, y_loc)){
                 Piece* removed_piece = remove_button(x_loc, y_loc);
-                place_piece(removed_piece, x_loc-1, y_loc);
+                place_piece(removed_piece, x_loc+1, y_loc);
             }
         }
     }
@@ -298,7 +304,7 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
         else{
             if(check_boop_path(x_loc, y_loc+1)){
                 Piece* removed_piece = remove_button(x_loc, y_loc);
-                place_piece(removed_piece, x_loc-1, y_loc);
+                place_piece(removed_piece, x_loc, y_loc+1);
             }
         }
     }
@@ -330,7 +336,7 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
         else{
             if(check_boop_path(x_loc-1, y_loc-1)){
                 Piece* removed_piece = remove_button(x_loc, y_loc);
-                place_piece(removed_piece, x_loc-1, y_loc);
+                place_piece(removed_piece, x_loc-1, y_loc-1);
             }
         }
     }
@@ -702,6 +708,7 @@ void Boop::player_turn(int player_num) {
     else {
         current = player_2;
     }
+    cout << endl << current->get_name() << "'s turn: "<< endl;
     current->display_pieces();
     cout << "Please choose which you would like to play" << endl;
     cout << "A. Cat         B. Kitten" << endl;
@@ -718,8 +725,20 @@ void Boop::player_turn(int player_num) {
     cin >> y_loc;
     x_loc--;
     y_loc--;
-    place_piece(play_piece, x_loc, y_loc);
-    display();
+    bool turn_complete = place_piece(play_piece, x_loc, y_loc);
+    if (!turn_complete) {
+        if(get_player(play_piece) == player_1){
+            current->receive_pieces(play_piece);
+            player_turn(1);
+        }
+        else{
+            current->receive_pieces(play_piece);
+            player_turn(2);
+        }
+    }
+    else {
+        display();
+    }
 }
 
 void Boop::play_game(){
