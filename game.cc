@@ -95,8 +95,8 @@ void Boop::display() {
             cout << "0" << endl; // cout here is for spacing purposes at the end of the line
         }
         else{
-            current = game_board[y_axis].get_head();
             for(int x = 0; x < SIZE ; x++){
+                current = game_board[y_axis].get_head();
                 int temp;
                 int index = current->location;
                 if(x==index){
@@ -116,14 +116,23 @@ void Boop::display() {
                             temp = 4;
                         }
                     }
-                    if(current->location == x){
-                        cout << temp << ' ';
+                    cout << temp << ' ';
+                    if(current->next != nullptr){
+                        current = current->next;
+                    }
+                    if(x==SIZE-1){
+                        cout << endl;
                     }
                 }
                 else{
                     cout << "0 ";
-                    current = current->next;
-                } 
+                    if(current->next != nullptr){
+                        current = current->next;
+                    }
+                    if(x==SIZE-1){
+                        cout << endl;
+                    }
+                }
             }
         }
     }
@@ -139,16 +148,25 @@ Player* Boop::get_player(Piece* target_piece) {
 }
 
 void Boop::place_piece(Piece* cat_or_kitten, int x, int y) {
+    if(game_board[y].locate(x) != nullptr){
+        cout << "Uh oh! That spot is already taken! Try again!" << endl;
+        if(get_player(cat_or_kitten) == player_1){
+            player_turn(1);
+        }
+        else{
+            player_turn(2);
+        }
+    }
     if (game_board[y].locate(x) == nullptr) {    
         game_board[y].append(cat_or_kitten, x);
         check_coordinates_for_boop(x, y);
-    }
-    if (cat_or_kitten->is_cat()) {
-        if (get_player(cat_or_kitten) == player_1) {
-            player_1_cat++;
-        }
-        else {
-            player_2_cat++;
+        if (cat_or_kitten->is_cat()) {
+            if (get_player(cat_or_kitten) == player_1) {
+                player_1_cat++;
+            }
+            else {
+                player_2_cat++;
+            }
         }
     }
 }
@@ -670,7 +688,6 @@ Player* Boop::check_victory() {
             }
         }
     }
-    cout << "check victory is done" << endl;
     return check_eight();
 }
 
@@ -699,7 +716,8 @@ void Boop::player_turn(int player_num) {
     cout << "Please enter x, y coordinate: " << endl;
     cin >> x_loc;
     cin >> y_loc;
-    y_loc = y_loc-1;
+    x_loc--;
+    y_loc--;
     place_piece(play_piece, x_loc, y_loc);
     display();
 }
