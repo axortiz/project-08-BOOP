@@ -1,10 +1,12 @@
 #include "player.h"
 #include "piece.h"
 #include "kitten.h"
+#include "constants.h"
 #include "cat.h"
 #include <vector>
 
 using namespace std;
+using namespace constants;
 
 Player::Player(string given_name) 
     :name(given_name),
@@ -64,10 +66,7 @@ Piece* Player::retrieve_kitten() {
 }
 
 void Player::display_pieces() {
-    for (int i = 0; i < (int) my_pieces.size(); i++) {
-        my_pieces[i]->display();
-    }
-    cout << endl;
+    cout << "You have " << (int) my_pieces.size() << " pieces." << endl;
 }
 
 void Player::receive_pieces(Piece* booped) {
