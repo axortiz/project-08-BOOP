@@ -177,6 +177,26 @@ bool Boop::place_piece(Piece* cat_or_kitten, int x, int y) {
     }
 }
 
+void Boop::boop_cat(Piece* cat_or_kitten, int x_loc, int y_loc) {
+    if(game_board[y_loc].locate(x_loc) != nullptr){
+        cout << game_board[y_loc].locate(x_loc);
+        cout << "Uh oh! That spot is already taken! Try again!" << endl;
+        return;
+    }
+    else {    
+        game_board[y_loc].append(cat_or_kitten, x_loc);
+        if (cat_or_kitten->is_cat()) {
+            if (get_player(cat_or_kitten) == player_1) {
+                player_1_cat++;
+            }
+            else {
+                player_2_cat++;
+            }
+        }
+        return;
+    }
+}
+
 void Boop::check_coordinates_for_boop(int x, int y){
     Node* right = game_board[y].locate(x+1);
     if(right!=nullptr){
@@ -256,7 +276,7 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
         else{
             if(check_boop_path(x_loc+1, y_loc)){
                 Piece* removed_piece = remove_button(x_loc, y_loc);
-                place_piece(removed_piece, x_loc+1, y_loc);
+                boop_cat(removed_piece, x_loc+1, y_loc);
             }
         }
     }
@@ -272,7 +292,7 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
         else{
             if(check_boop_path(x_loc-1, y_loc)){
                 Piece* removed_piece = remove_button(x_loc, y_loc);
-                place_piece(removed_piece, x_loc-1, y_loc);
+                boop_cat(removed_piece, x_loc-1, y_loc);
             }
         }
     }
@@ -288,7 +308,7 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
         else{
             if(check_boop_path(x_loc, y_loc-1)){
                 Piece* removed_piece = remove_button(x_loc, y_loc);
-                place_piece(removed_piece, x_loc, y_loc-1);
+                boop_cat(removed_piece, x_loc, y_loc-1);
             }
         }
     }
@@ -304,7 +324,7 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
         else{
             if(check_boop_path(x_loc, y_loc+1)){
                 Piece* removed_piece = remove_button(x_loc, y_loc);
-                place_piece(removed_piece, x_loc, y_loc+1);
+                boop_cat(removed_piece, x_loc, y_loc+1);
             }
         }
     }
@@ -320,7 +340,7 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
         else{
             if(check_boop_path(x_loc+1, y_loc-1)){
                 Piece* removed_piece = remove_button(x_loc, y_loc);
-                place_piece(removed_piece, x_loc+1, y_loc-1);
+                boop_cat(removed_piece, x_loc+1, y_loc-1);
             }
         }
     }
@@ -336,7 +356,7 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
         else{
             if(check_boop_path(x_loc-1, y_loc-1)){
                 Piece* removed_piece = remove_button(x_loc, y_loc);
-                place_piece(removed_piece, x_loc-1, y_loc-1);
+                boop_cat(removed_piece, x_loc-1, y_loc-1);
             }
         }
     }
@@ -352,7 +372,7 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
         else{
             if(check_boop_path(x_loc+1, y_loc+1)){
                 Piece* removed_piece = remove_button(x_loc, y_loc);
-                place_piece(removed_piece, x_loc+1, y_loc+1);
+                boop_cat(removed_piece, x_loc+1, y_loc+1);
             }
         }
     }
@@ -368,7 +388,7 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
         else{
            if(check_boop_path(x_loc-1, y_loc)){
                 Piece* removed_piece = remove_button(x_loc, y_loc);
-                place_piece(removed_piece, x_loc-1, y_loc+1);
+                boop_cat(removed_piece, x_loc-1, y_loc+1);
             }
         }
     }
