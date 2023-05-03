@@ -9,12 +9,12 @@ using namespace std;
 using namespace constants;
 
 Player::Player(string given_name) 
-    :name(given_name),
-    num_pieces(8)
+    :name(given_name)
 {
-    for (int i = 0; i < max_num; i++) {
+    for (int i = 0; i < MAX_NUM; i++) {
         my_pieces.push_back(new Kitten(name));
     }
+    num_pieces = (int) my_pieces.size();
 }
 
 string Player::get_name(){
@@ -24,19 +24,21 @@ string Player::get_name(){
 void Player::graduate_kittens(int num_graduee) {
     for (int i = 0; i < num_graduee; i++) {
         my_pieces.push_back(new Cat(name));
-        num_pieces++;
+        num_pieces = (int) my_pieces.size();
     }
 }
 
 Piece* Player::retrieve_piece(bool get_cat) {
     Piece* target_piece = nullptr;
-    if (get_cat) {
-        target_piece = retrieve_cat();
-        num_pieces--;
-    }
-    else {
-        target_piece = retrieve_kitten();
-        num_pieces--;
+    if ((int) my_pieces.size() > 0) {
+        if (get_cat) {
+            target_piece = retrieve_cat();
+            num_pieces = (int) my_pieces.size();
+        }
+        else {
+            target_piece = retrieve_kitten();
+            num_pieces = (int) my_pieces.size();
+        }
     }
     return target_piece;
 }
@@ -70,6 +72,9 @@ void Player::display_pieces() {
 }
 
 void Player::receive_pieces(Piece* booped) {
+    if (num_pieces >= MAX_NUM){
+        cout << "error too many pieces" << endl;
+    }
     my_pieces.push_back(booped);
-    num_pieces++;
+    num_pieces = (int) my_pieces.size();
 }
