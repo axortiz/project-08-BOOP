@@ -13,6 +13,7 @@ public:
     virtual std::string get_name() = 0;
     virtual void display() = 0;
     virtual bool is_cat() = 0;
+    virtual bool is_empty() = 0;
 };
 
 #endif
