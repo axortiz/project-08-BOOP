@@ -4,7 +4,6 @@
 #include "piece.h"
 #include <vector>
 #include <string>
-const int SIZE = 6;
 
 struct Node {
     Piece* key;
@@ -32,8 +31,8 @@ private:
     std::vector <DoublyLinkedList> game_board;
     Player* player_1;
     Player* player_2;
-    int player_1_cat;
-    int player_2_cat;
+    int player_1_cat = 0;
+    int player_2_cat = 0;
 protected:
 public:
     Boop(std::string player_1, std::string player_2);
@@ -42,8 +41,10 @@ public:
     void place_piece(Piece* cat_or_kitten, int x, int y);
     Piece* remove_button(int x_loc, int y_loc);
     void check_coordinates_for_boop(int x, int y);
-    void boop_piece(int x_loc, int y_loc);
+    void boop_piece(int x_loc, int y_loc, std::string path);
     void boop_cat(int x_loc, int y_loc);
+    bool check_boop_path(int x_loc, int y_loc);
+    void deduct_cats(Player*);
     Piece* check_coordinates_for_three(int x, int y); 
     Piece* check_three_in_a_row_horizontal(int x, int y, std::string path);
     Piece* check_three_in_a_row_vertical(int x, int y, std::string path);
