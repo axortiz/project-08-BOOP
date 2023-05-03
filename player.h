@@ -5,7 +5,6 @@
 #include "piece.h"
 #include <vector>
 #include <string>
-const int max_num = 8;
 
 class Player {
 private:
