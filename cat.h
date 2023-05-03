@@ -11,6 +11,7 @@ public:
     ~Cat();
     Cat(std::string player_name);
     bool is_cat();
+    bool is_empty();
     std::string get_name();
     void display();
 };
