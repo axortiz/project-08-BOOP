@@ -5,34 +5,14 @@
 #include <vector>
 #include <string>
 
-struct Node {
-    Piece* key;
-    int location;
-    Node* prev;
-    Node* next;
-    Node(Piece* new_key, int x_loc);
-};
-
-struct DoublyLinkedList{
-private:
-    Node* head;
-    Node* tail;
-public:
-    DoublyLinkedList();
-    bool empty();
-    void append(Piece* new_key, int x_loc);
-    Node* get_head();
-    Node* locate(int search_key);
-    Node* recursive_locate(Node* current, int search_key);
-};
 
 class Boop {
 private:
-    std::vector <vector<Piece*>> game_board;
+    std::vector <std::vector <Piece*>> game_board;
     Player* player_1;
     Player* player_2;
-    int player_1_cat = 0;
-    int player_2_cat = 0;
+    int player_1_cat;
+    int player_2_cat;
 protected:
 public:
     Boop(std::string player_1, std::string player_2);
