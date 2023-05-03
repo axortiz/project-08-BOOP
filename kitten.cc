@@ -12,6 +12,10 @@ bool Kitten::is_cat() {
     return false;
 }
 
+bool Kitten::is_empty() {
+    return false;
+}
+
 string Kitten::get_name() {
     return player_name;
 }
