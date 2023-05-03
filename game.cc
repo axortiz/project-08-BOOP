@@ -137,6 +137,7 @@ Player* Boop::get_player(Piece* target_piece) {
 void Boop::place_piece(Piece* cat_or_kitten, int x, int y) {
     if (game_board[y].locate(x) == nullptr) {    
         game_board[y].append(cat_or_kitten, x);
+        check_coordinates_for_boop(x, y);
     }
     if (cat_or_kitten->is_cat()) {
         if (get_player(cat_or_kitten) == player_1) {
@@ -149,70 +150,170 @@ void Boop::place_piece(Piece* cat_or_kitten, int x, int y) {
 }
 
 void Boop::check_coordinates_for_boop(int x, int y){
-    string current_player = game_board[y].locate(x)->key->get_name();
     Node* right = game_board[y].locate(x+1);
-    Node* top = game_board[y-1].locate(x);
-    Node* bottom = game_board[y+1].locate(x);
     if(right!=nullptr){
-        if(right->key->get_name()!= current_player){
-            //boop function
+        boop_piece(x, y, "right");
+    }
+    right = game_board[y].locate(x-1);
+    if(right!=nullptr){
+       boop_piece(x, y, "left");
+    }
+    if (y != 0) {
+        Node* top = game_board[y-1].locate(x);
+        if(top!=nullptr){
+            boop_piece(x, y, "top");
         }
-        right = game_board[y].locate(x-1);
-        if(right!=nullptr){
-            if(right->key->get_name()!= current_player){
-                //boop function
-            }
+        top = game_board[y-1].locate(x+1);//top right
+        if(top!=nullptr){
+            boop_piece(x, y, "top_r");
+        }
+        top = game_board[y-1].locate(x-1);//top left
+        if(top!=nullptr){
+        boop_piece(x, y, "top_l");
         }
     }
-    if(top!=nullptr){
-        if(top->key->get_name()!= current_player){
-            //boop function
+    if (y != 5) {
+        Node* bottom = game_board[y+1].locate(x);
+        if(bottom!=nullptr){
+            boop_piece(x, y, "bottom");
         }
-    }
-    top = game_board[y-1].locate(x+1);//top right
-    if(top!=nullptr){
-        if(top->key->get_name()!= current_player){
-            //boop function
+        bottom = game_board[y+1].locate(x+1);//bottom right
+        if(bottom!=nullptr){
+            boop_piece(x, y, "bottom_r");
         }
-    }
-    top = game_board[y-1].locate(x-1);//top left
-    if(top!=nullptr){
-        if(top->key->get_name()!= current_player){
-            //boop function
-        }
-    }
-    if(bottom!=nullptr){
-        if(bottom->key->get_name()!= current_player){
-            //boop function
-        }
-    }
-    bottom = game_board[y+1].locate(x+1);//bottom right
-    if(bottom!=nullptr){
-        if(bottom->key->get_name()!= current_player){
-            //boop function
-        }
-    }
-    bottom = game_board[y+1].locate(x-1);//bottom left
-    if(bottom!=nullptr){
-        if(bottom->key->get_name()!= current_player){
-            //boop function
+        bottom = game_board[y+1].locate(x-1);//bottom left
+        if(bottom!=nullptr){
+            boop_piece(x, y, "bottom_l");
         }
     }
 }
 
-// void Boop::boop_piece(int x_loc, int y_loc) { need work
-//     //boop
-//     if ( ) {
-//         Piece* removed_piece = remove_button(x_loc, y_loc);
-//         Player* temp = get_player(removed_piece);
-//         temp->receive_pieces(removed_piece);
-//     }
+Piece* Boop::remove_button(int x_loc, int y_loc){ // DELETE LINE IS SKETCHY HERE
+    Piece* removed_piece = game_board[y_loc].locate(x_loc)->key;
+    Node* current = game_board[y_loc].locate(x_loc);
+    current->next->prev = current->prev;
+    current->prev->next = current->next;
+    delete current;
+    return removed_piece;
+}
 
-// }
+bool Boop::check_boop_path(int x_loc, int y_loc) {
+    if (game_board[y_loc].locate(x_loc) == nullptr) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+void Boop::boop_piece(int x_loc, int y_loc, string path) {
+    if (path == "right") {
+        if (x_loc == 6){
+            Piece* removed_piece = remove_button(x_loc, y_loc);
+            Player* temp = get_player(removed_piece);
+            temp->receive_pieces(removed_piece);
+        }
+        else{
+            if(check_boop_path(x_loc-1, y_loc)){
+                Piece* removed_piece = remove_button(x_loc, y_loc);
+                place_piece(removed_piece, x_loc-1, y_loc);
+            }
+        }
+    }
+    if (path == "left") {
+        if (x_loc == 1){
+            Piece* removed_piece = remove_button(x_loc, y_loc);
+            Player* temp = get_player(removed_piece);
+            temp->receive_pieces(removed_piece);
+        }
+        else{
+            if(check_boop_path(x_loc-1, y_loc)){
+                Piece* removed_piece = remove_button(x_loc, y_loc);
+                place_piece(removed_piece, x_loc-1, y_loc);
+            }
+        }
+    }
+    if (path == "top") {
+        if (y_loc == 1){
+            Piece* removed_piece = remove_button(x_loc, y_loc);
+            Player* temp = get_player(removed_piece);
+            temp->receive_pieces(removed_piece);
+        }
+        else{
+            if(check_boop_path(x_loc, y_loc-1)){
+                Piece* removed_piece = remove_button(x_loc, y_loc);
+                place_piece(removed_piece, x_loc, y_loc-1);
+            }
+        }
+    }
+    if (path == "bottom") {
+        if (y_loc == 6){
+            Piece* removed_piece = remove_button(x_loc, y_loc);
+            Player* temp = get_player(removed_piece);
+            temp->receive_pieces(removed_piece);
+        }
+        else{
+            if(check_boop_path(x_loc, y_loc+1)){
+                Piece* removed_piece = remove_button(x_loc, y_loc);
+                place_piece(removed_piece, x_loc-1, y_loc);
+            }
+        }
+    }
+    if (path == "top right") {
+        if (y_loc == 1 && x_loc == 6){
+            Piece* removed_piece = remove_button(x_loc, y_loc);
+            Player* temp = get_player(removed_piece);
+            temp->receive_pieces(removed_piece);
+        }
+        else{
+            if(check_boop_path(x_loc+1, y_loc-1)){
+                Piece* removed_piece = remove_button(x_loc, y_loc);
+                place_piece(removed_piece, x_loc+1, y_loc-1);
+            }
+        }
+    }
+    if (path == "top left") {
+        if (y_loc == 1 && x_loc == 1){
+            Piece* removed_piece = remove_button(x_loc, y_loc);
+            Player* temp = get_player(removed_piece);
+            temp->receive_pieces(removed_piece);
+        }
+        else{
+            if(check_boop_path(x_loc-1, y_loc-1)){
+                Piece* removed_piece = remove_button(x_loc, y_loc);
+                place_piece(removed_piece, x_loc-1, y_loc);
+            }
+        }
+    }
+    if (path == "bottom right") {
+        if (y_loc == 6 && x_loc == 6){
+            Piece* removed_piece = remove_button(x_loc, y_loc);
+            Player* temp = get_player(removed_piece);
+            temp->receive_pieces(removed_piece);
+        }
+        else{
+            if(check_boop_path(x_loc+1, y_loc+1)){
+                Piece* removed_piece = remove_button(x_loc, y_loc);
+                place_piece(removed_piece, x_loc+1, y_loc+1);
+            }
+        }
+    }
+    if (path == "bottom left") {
+        if (y_loc == 6 && x_loc == 1){
+            Piece* removed_piece = remove_button(x_loc, y_loc);
+            Player* temp = get_player(removed_piece);
+            temp->receive_pieces(removed_piece);
+        }
+        else{
+           if(check_boop_path(x_loc-1, y_loc)){
+                Piece* removed_piece = remove_button(x_loc, y_loc);
+                place_piece(removed_piece, x_loc-1, y_loc+1);
+            }
+        }
+    }
+}
 
 Piece* Boop::check_coordinates_for_three(int x, int y){
-    //check-right-left
-    //MAIN ISSUE: Segmentation faults with the y-1 and y-2
     Node* current = game_board[y].locate(x);
     Node* top = game_board[y-1].locate(x);
     Node* bottom = game_board[y+1].locate(x);
