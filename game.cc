@@ -7,6 +7,7 @@
 #include "player.h"
 #include "kitten.h"
 #include "cat.h"
+#include "empty.h"
 
 using namespace std;
 using namespace constants;
@@ -20,7 +21,8 @@ Boop::Boop(string player_name_1, string player_name_2)
     for (int i = 0; i < SIZE; i++) {
         vector<Piece*> temp;
         for (int j = 0; j < SIZE; j++) {
-            temp.push_back(new Piece("0"));
+            Piece* thingy = new Empty("game");
+            temp.push_back(thingy);
         }
         game_board.push_back(temp);
     }
@@ -30,6 +32,9 @@ void Boop::display() {
     cout << "The board is: " << endl;
     for(int y_axis = 0; y_axis < SIZE ; y_axis++){
         for(int x_axis = 0; x_axis < SIZE ; x_axis++){
+            if (game_board[y_axis][x_axis]->is_empty()) {
+                cout << "0 ";
+            }
             if(game_board[y_axis][x_axis]->is_cat()){
                 if(game_board[y_axis][x_axis]->get_name() == player_1->get_name()){
                     cout << "2 ";
@@ -38,16 +43,13 @@ void Boop::display() {
                     cout << "4 ";
                 }
             }
-            else if(!game_board[y_axis][x_axis]->is_cat()){
+            else if(!game_board[y_axis][x_axis]->is_cat() && !game_board[y_axis][x_axis]->is_empty()){
                 if(game_board[y_axis][x_axis]->get_name() == player_1->get_name()){
                     cout << "1 ";
                 }
                 else if(game_board[y_axis][x_axis]->get_name() == player_2->get_name()){
                     cout << "3 ";
                 }
-            }
-            else{
-                cout << "0 ";
             }
         }
         cout << endl;
@@ -64,7 +66,7 @@ Player* Boop::get_player(Piece* target_piece) {
 }
 
 bool Boop::place_piece(Piece* cat_or_kitten, int x, int y) {
-    if(game_board[y][x] != empty){
+    if(!game_board[y][x]->is_empty()){
         cout << "Uh oh! That spot is already taken! Try again!" << endl;
         return false;
     }
@@ -89,34 +91,34 @@ void Boop::boop_cat(Piece* cat_or_kitten, int x_loc, int y_loc) {
 
 void Boop::check_coordinates_for_boop(int x, int y){
     if(x!=0){
-        if(game_board[y][x-1] != empty){
+        if(!game_board[y][x-1]->is_empty()){
         boop_piece(x-1, y, "left");
         }
     }
     if(x!=5){
-        if(game_board[y][x+1] != empty){
+        if(!game_board[y][x+1]->is_empty()){
             boop_piece(x, y, "right");
         }
     }
     if (y != 0) {
-        if(game_board[y-1][x] != empty){
+        if(!game_board[y-1][x]->is_empty()){
             boop_piece(x, y, "top");
         }
-        if(game_board[y-1][x+1] != empty){
+        if(!game_board[y-1][x+1]->is_empty()){
             boop_piece(x, y, "top_r");
         }
-        if(game_board[y-1][x-1] != empty){
+        if(!game_board[y-1][x-1]->is_empty()){
             boop_piece(x, y, "top_l");
         }
     }
     if (y != 5) {
-        if(game_board[y+1][x] != empty){
+        if(!game_board[y+1][x]->is_empty()){
             boop_piece(x, y, "bottom");
         }
-        if(game_board[y+1][x+1] != empty){
+        if(!game_board[y+1][x+1]->is_empty()){
             boop_piece(x, y, "bottom_r");
         }
-        if(game_board[y+1][x-1] != empty){
+        if(!game_board[y+1][x-1]->is_empty()){
             boop_piece(x, y, "bottom_l");
         }
     }
@@ -124,12 +126,13 @@ void Boop::check_coordinates_for_boop(int x, int y){
 
 Piece* Boop::remove_button(int x_loc, int y_loc){ // DELETE LINE IS SKETCHY HERE
     Piece* removed_piece = game_board[y_loc][x_loc];
-    game_board[y_loc][x_loc] = empty;
+    Piece* thingy = new Empty("game");
+    game_board[y_loc][x_loc] = thingy;
     return removed_piece;
 }
 
 bool Boop::check_boop_path(int x_loc, int y_loc) {
-    if (game_board[y_loc][x_loc] == empty) {
+    if (game_board[y_loc][x_loc]->is_empty()) {
         return true;
     }
     else {
@@ -278,81 +281,81 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
 }
 
 Piece* Boop::check_coordinates_for_three(int x, int y){
-    if(game_board[y][x+1]!=empty){//checks if the coordineate is to the left of another piece
-        if(game_board[y][x-1]!=empty){//checks if the coordinate is the center of three in a row
+    if(!game_board[y][x+1]->is_empty()){//checks if the coordineate is to the left of another piece
+        if(!game_board[y][x-1]->is_empty()){//checks if the coordinate is the center of three in a row
             string path = "center";
             return check_three_in_a_row_horizontal(x, y, path);
         }
-        else if(game_board[y][x+2]!=empty){//checks if the coordinate is the leftmost piece of three in a row
+        else if(!game_board[y][x+2]->is_empty()){//checks if the coordinate is the leftmost piece of three in a row
             string path = "left";
             return check_three_in_a_row_horizontal(x, y, path);
         }
     }
-    else if(game_board[y][x-1]!=empty){
-        if(game_board[y][x-2]!=empty){//checks if the coordinate is the rightmost piece of three in a row
+    else if(!game_board[y][x-1]->is_empty()){
+        if(!game_board[y][x-2]->is_empty()){//checks if the coordinate is the rightmost piece of three in a row
             string path = "right";
             return check_three_in_a_row_horizontal(x, y, path);
         }
     }
-    else if(game_board[y-1][x]!=empty){
-        if(game_board[y+1][x]!=empty){
+    else if(!game_board[y-1][x]->is_empty()){
+        if(!game_board[y+1][x]->is_empty()){
             string path = "center";
             return check_three_in_a_row_vertical(x, y, path);//checks if the coordinate is the center of a vertical three in a row
         }
         else{
-            if(game_board[y-2][x]!=empty){
+            if(!game_board[y-2][x]->is_empty()){
                 string path = "bottom";
                 return check_three_in_a_row_vertical(x, y, path);//checks if the coordinate is the bottom of a vertical three in a row
             }
         }
     }
-    else if(game_board[y+1][x]!=nullptr){
-        if(game_board[y+2][x]!=empty){
+    else if(!game_board[y+1][x]->is_empty()){
+        if(!game_board[y+2][x]->is_empty()){
             string path = "top";
             return check_three_in_a_row_vertical(x, y, path);//checks if the coordinate is the top of a vertical three in a row
         }
     }
     else{
-        if(game_board[y-1][x+1]!=empty){
-            if(game_board[y+1][x-1]!=empty){
+        if(!game_board[y-1][x+1]->is_empty()){
+            if(!game_board[y+1][x-1]->is_empty()){
                 string path = "center right";
                 return check_three_in_a_row_diagonal(x, y, path);//checks if the coordintae is the center of a diagonal three in a row in / direction
             }
             else{
-                if(game_board[y-2][x+2]!=empty){
+                if(!game_board[y-2][x+2]->is_empty()){
                     string path = "bottom left";
                     return check_three_in_a_row_diagonal(x, y, path);//checks if the coordinate is the bottom left of a diagonal three in / direction
                 }
             }
         }
-        else if(game_board[y+1][x]!=empty){
-            if(game_board[y+2][x-2]!=empty){
+        else if(!game_board[y+1][x]->is_empty()){
+            if(!game_board[y+2][x-2]->is_empty()){
                 string path = "top right";
                 return check_three_in_a_row_diagonal(x, y, path);//checks if the coordinate is the top right of a diagonal three in / direction
             }
         }
         else{
-            if(game_board[y-1][x-1]!=empty){
-                if(game_board[y+1][x+1]!=empty){
+            if(!game_board[y-1][x-1]->is_empty()){
+                if(!game_board[y+1][x+1]->is_empty()){
                     string path = "center left";
                     return check_three_in_a_row_diagonal(x, y, path);//checks if the coordinate is the center of a diagonal three in a row in \ direction
                 }
                 else{
-                    if(game_board[y-2][x-2]!=empty){
+                    if(!game_board[y-2][x-2]->is_empty()){
                         string path = "bottom right";
                         return check_three_in_a_row_diagonal(x, y, path);//checks if the coordinate is the bottom right of a diagonal three in  \ direction
                     }
                 }
             }
-            else if(game_board[y+1][x+1]!=empty){
-                if(game_board[y+2][x+2]!=empty){
+            else if(!game_board[y+1][x+1]->is_empty()){
+                if(!game_board[y+2][x+2]->is_empty()){
                     string path = "top left";
                     return check_three_in_a_row_diagonal(x, y, path);//checks if the coordinate is the top left of a diagonal three in  \ direction
                 }
             }
         }
     }
-    return empty;
+    return nullptr;
 }
 
 Piece* Boop::check_three_in_a_row_horizontal(int x, int y, string path){
@@ -395,7 +398,7 @@ Piece* Boop::check_three_in_a_row_horizontal(int x, int y, string path){
             }
         }
     }
-    return empty;
+    return nullptr;
 }
 
 Piece* Boop::check_three_in_a_row_vertical(int x, int y, string path){
@@ -438,7 +441,7 @@ Piece* Boop::check_three_in_a_row_vertical(int x, int y, string path){
             }
         }
     }
-    return empty;
+    return nullptr;
 }
 
 Piece* Boop::check_three_in_a_row_diagonal(int x, int y, string path){
@@ -520,7 +523,7 @@ Piece* Boop::check_three_in_a_row_diagonal(int x, int y, string path){
             }
         }   
     }
-    return empty;
+    return nullptr;
 }
 
 Player* Boop::check_eight(){
@@ -540,7 +543,7 @@ Player* Boop::check_victory() {
             for(int x_axis = 0; x_axis < SIZE; x_axis++){
                 if(game_board[y_axis][x_axis]->is_cat()){
                     winning_piece = check_coordinates_for_three(y_axis, x_axis);
-                    if (winning_piece != empty) {
+                    if (!winning_piece->is_empty()) {
                         return get_player(winning_piece);
                     }
                 }
