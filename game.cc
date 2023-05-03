@@ -11,76 +11,6 @@
 using namespace std;
 using namespace constants;
 
-Node::Node(Piece* new_key, int x_loc) 
-    : key(new_key),
-      location(x_loc) 
-{
-}
-
-DoublyLinkedList::DoublyLinkedList(){
-    head = nullptr;
-    tail = nullptr;
-}
-
-bool DoublyLinkedList::empty() {
-    return tail == nullptr;
-}
-
-void DoublyLinkedList::append(Piece* new_key, int x_loc) {
-    Node* address_of_new_node = new Node(new_key, x_loc);
-    if (empty()) {
-        head = address_of_new_node;
-        tail = address_of_new_node;
-        return;
-    }
-    else if(x_loc < head->location){
-        head->prev = address_of_new_node;
-        address_of_new_node->next = head;
-        head = address_of_new_node;
-        head->prev = nullptr;
-        return;
-    }
-    else if(x_loc > tail->location){
-        tail->next = address_of_new_node;
-        address_of_new_node->prev = tail;
-        tail = address_of_new_node;
-        tail->next = nullptr;
-        return;
-    }
-    else if(x_loc > head->location){
-        Node* current = head;
-        while(x_loc > current->location){
-            current = current->next;
-        }
-        current->prev->next = address_of_new_node;
-        address_of_new_node->prev = current->prev;
-        current->prev = address_of_new_node;
-        address_of_new_node->next = current;
-        return;
-    }
-}
-
-Node* DoublyLinkedList::get_head() {
-    return head;
-}
-
-Node* DoublyLinkedList::locate(int search_key) {
-    Node* current = head;
-    return recursive_locate(current, search_key);
-}
-
-Node* DoublyLinkedList::recursive_locate(Node* current, int search_key) {
-    if (current == tail) {
-        cout << "NOT FOUND" << endl;
-        return nullptr;
-    }
-    else if (current->location == search_key) {
-        cout << "FOUND" << endl;
-        return current;
-    }
-    return recursive_locate(current->next, search_key);
-}
-
 Boop::Boop(string player_name_1, string player_name_2) 
     : player_1_cat(0),
       player_2_cat(0)
@@ -88,62 +18,39 @@ Boop::Boop(string player_name_1, string player_name_2)
     player_1 = new Player(player_name_1);
     player_2 = new Player(player_name_2);
     for (int i = 0; i < SIZE; i++) {
-        DoublyLinkedList temp;
+        vector<Piece*> temp;
+        for (int j = 0; j < SIZE; j++) {
+            temp.push_back(new Piece("0"));
+        }
         game_board.push_back(temp);
     }
 }
 
 void Boop::display() {
     cout << "The board is: " << endl;
-    Node* current;//How do you get access to the doublylinkedlist private
     for(int y_axis = 0; y_axis < SIZE ; y_axis++){
-        if(game_board[y_axis].empty()){
-            for(int x = 0; x < SIZE-1 ; x++){
+        for(int x_axis = 0; x_axis < SIZE ; x_axis++){
+            if(game_board[y_axis][x_axis]->is_cat()){
+                if(game_board[y_axis][x_axis]->get_name() == player_1->get_name()){
+                    cout << "2 ";
+                }
+                else if(game_board[y_axis][x_axis]->get_name() == player_2->get_name()){
+                    cout << "4 ";
+                }
+            }
+            else if(!game_board[y_axis][x_axis]->is_cat()){
+                if(game_board[y_axis][x_axis]->get_name() == player_1->get_name()){
+                    cout << "1 ";
+                }
+                else if(game_board[y_axis][x_axis]->get_name() == player_2->get_name()){
+                    cout << "3 ";
+                }
+            }
+            else{
                 cout << "0 ";
             }
-            cout << "0" << endl; // cout here is for spacing purposes at the end of the line
         }
-        else{
-            for(int x = 0; x < SIZE ; x++){
-                current = game_board[y_axis].get_head();
-                int temp;
-                int index = current->location;
-                if(x==index){
-                    if(!current->key->is_cat()){
-                        if(current->key->get_name() == player_1->get_name()){
-                            temp = 1;
-                        }
-                        else if(current->key->get_name() == player_2->get_name()){
-                            temp = 3;
-                        }
-                    }
-                    if(current->key->is_cat()){
-                        if(current->key->get_name() == player_1->get_name()){
-                            temp = 2;
-                        }
-                        else if(current->key->get_name() == player_2->get_name()){
-                            temp = 4;
-                        }
-                    }
-                    cout << temp << ' ';
-                    if(current->next != nullptr){
-                        current = current->next;
-                    }
-                    if(x==SIZE-1){
-                        cout << endl;
-                    }
-                }
-                else{
-                    cout << "0 ";
-                    if(current->next != nullptr){
-                        current = current->next;
-                    }
-                    if(x==SIZE-1){
-                        cout << endl;
-                    }
-                }
-            }
-        }
+        cout << endl;
     }
 }
 
@@ -157,13 +64,12 @@ Player* Boop::get_player(Piece* target_piece) {
 }
 
 bool Boop::place_piece(Piece* cat_or_kitten, int x, int y) {
-    if(game_board[y].locate(x) != nullptr){
-        cout << game_board[y].locate(x);
+    if(game_board[y][x] != empty){
         cout << "Uh oh! That spot is already taken! Try again!" << endl;
         return false;
     }
     else {    
-        game_board[y].append(cat_or_kitten, x);
+        game_board[y][x] = cat_or_kitten;
         check_coordinates_for_boop(x, y);
         if (cat_or_kitten->is_cat()) {
             if (get_player(cat_or_kitten) == player_1) {
@@ -178,75 +84,52 @@ bool Boop::place_piece(Piece* cat_or_kitten, int x, int y) {
 }
 
 void Boop::boop_cat(Piece* cat_or_kitten, int x_loc, int y_loc) {
-    if(game_board[y_loc].locate(x_loc) != nullptr){
-        cout << game_board[y_loc].locate(x_loc);
-        cout << "Uh oh! That spot is already taken! Try again!" << endl;
-        return;
-    }
-    else {    
-        game_board[y_loc].append(cat_or_kitten, x_loc);
-        if (cat_or_kitten->is_cat()) {
-            if (get_player(cat_or_kitten) == player_1) {
-                player_1_cat++;
-            }
-            else {
-                player_2_cat++;
-            }
-        }
-        return;
-    }
+    game_board[y_loc][x_loc] = cat_or_kitten;
 }
 
 void Boop::check_coordinates_for_boop(int x, int y){
-    Node* right = game_board[y].locate(x+1);
-    if(right!=nullptr){
-        boop_piece(x+1, y, "right");
+    if(x!=0){
+        if(game_board[y][x-1] != empty){
+        boop_piece(x-1, y, "left");
+        }
     }
-    right = game_board[y].locate(x-1);
-    if(right!=nullptr){
-       boop_piece(x-1, y, "left");
+    if(x!=5){
+        if(game_board[y][x+1] != empty){
+            boop_piece(x, y, "right");
+        }
     }
     if (y != 0) {
-        Node* top = game_board[y-1].locate(x);
-        if(top!=nullptr){
+        if(game_board[y-1][x] != empty){
             boop_piece(x, y, "top");
         }
-        top = game_board[y-1].locate(x+1);//top right
-        if(top!=nullptr){
+        if(game_board[y-1][x+1] != empty){
             boop_piece(x, y, "top_r");
         }
-        top = game_board[y-1].locate(x-1);//top left
-        if(top!=nullptr){
-        boop_piece(x, y, "top_l");
+        if(game_board[y-1][x-1] != empty){
+            boop_piece(x, y, "top_l");
         }
     }
     if (y != 5) {
-        Node* bottom = game_board[y+1].locate(x);
-        if(bottom!=nullptr){
+        if(game_board[y+1][x] != empty){
             boop_piece(x, y, "bottom");
         }
-        bottom = game_board[y+1].locate(x+1);//bottom right
-        if(bottom!=nullptr){
+        if(game_board[y+1][x+1] != empty){
             boop_piece(x, y, "bottom_r");
         }
-        bottom = game_board[y+1].locate(x-1);//bottom left
-        if(bottom!=nullptr){
+        if(game_board[y+1][x-1] != empty){
             boop_piece(x, y, "bottom_l");
         }
     }
 }
 
 Piece* Boop::remove_button(int x_loc, int y_loc){ // DELETE LINE IS SKETCHY HERE
-    Piece* removed_piece = game_board[y_loc].locate(x_loc)->key;
-    Node* current = game_board[y_loc].locate(x_loc);
-    current->next->prev = current->prev;
-    current->prev->next = current->next;
-    delete current;
+    Piece* removed_piece = game_board[y_loc][x_loc];
+    game_board[y_loc][x_loc] = empty;
     return removed_piece;
 }
 
 bool Boop::check_boop_path(int x_loc, int y_loc) {
-    if (game_board[y_loc].locate(x_loc) == nullptr) {
+    if (game_board[y_loc][x_loc] == empty) {
         return true;
     }
     else {
@@ -395,107 +278,91 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
 }
 
 Piece* Boop::check_coordinates_for_three(int x, int y){
-    Node* current = game_board[y].locate(x);
-    Node* top = game_board[y-1].locate(x);
-    Node* bottom = game_board[y+1].locate(x);
-    if(current->next!=nullptr){//checks if the coordineate is to the left of another piece
-        if(current->prev!=nullptr){//checks if the coordinate is the center of three in a row
+    if(game_board[y][x+1]!=empty){//checks if the coordineate is to the left of another piece
+        if(game_board[y][x-1]!=empty){//checks if the coordinate is the center of three in a row
             string path = "center";
             return check_three_in_a_row_horizontal(x, y, path);
         }
-        else if(current->next->next!=nullptr){//checks if the coordinate is the leftmost piece of three in a row
+        else if(game_board[y][x+2]!=empty){//checks if the coordinate is the leftmost piece of three in a row
             string path = "left";
             return check_three_in_a_row_horizontal(x, y, path);
         }
     }
-    else if(current->prev!=nullptr){
-        if(current->prev->prev!=nullptr){//checks if the coordinate is the rightmost piece of three in a row
+    else if(game_board[y][x-1]!=empty){
+        if(game_board[y][x-2]!=empty){//checks if the coordinate is the rightmost piece of three in a row
             string path = "right";
             return check_three_in_a_row_horizontal(x, y, path);
         }
     }
-    else if(top!=nullptr){
-        if(bottom!=nullptr){
+    else if(game_board[y-1][x]!=empty){
+        if(game_board[y+1][x]!=empty){
             string path = "center";
             return check_three_in_a_row_vertical(x, y, path);//checks if the coordinate is the center of a vertical three in a row
         }
         else{
-            top = game_board[y-2].locate(x);
-            if(top!=nullptr){
+            if(game_board[y-2][x]!=empty){
                 string path = "bottom";
                 return check_three_in_a_row_vertical(x, y, path);//checks if the coordinate is the bottom of a vertical three in a row
             }
         }
     }
-    else if(bottom!=nullptr){
-        bottom = game_board[y+2].locate(x);
-        if(bottom!=nullptr){
+    else if(game_board[y+1][x]!=nullptr){
+        if(game_board[y+2][x]!=empty){
             string path = "top";
             return check_three_in_a_row_vertical(x, y, path);//checks if the coordinate is the top of a vertical three in a row
         }
     }
     else{
-        top = game_board[y-1].locate(x+1);
-        bottom = game_board[y+1].locate(x-1);
-        if(top!=nullptr){
-            if(bottom!=nullptr){
+        if(game_board[y-1][x+1]!=empty){
+            if(game_board[y+1][x-1]!=empty){
                 string path = "center right";
                 return check_three_in_a_row_diagonal(x, y, path);//checks if the coordintae is the center of a diagonal three in a row in / direction
             }
             else{
-                top = game_board[y-2].locate(x+2);
-                if(top!=nullptr){
+                if(game_board[y-2][x+2]!=empty){
                     string path = "bottom left";
                     return check_three_in_a_row_diagonal(x, y, path);//checks if the coordinate is the bottom left of a diagonal three in / direction
                 }
             }
         }
-        else if(bottom!=nullptr){
-            bottom = game_board[y+2].locate(x-2);
-            if(bottom!=nullptr){
+        else if(game_board[y+1][x]!=empty){
+            if(game_board[y+2][x-2]!=empty){
                 string path = "top right";
                 return check_three_in_a_row_diagonal(x, y, path);//checks if the coordinate is the top right of a diagonal three in / direction
             }
         }
         else{
-            top = game_board[y-1].locate(x-1);
-            bottom = game_board[y+1].locate(x+1);
-            if(top!=nullptr){
-                if(bottom!=nullptr){
+            if(game_board[y-1][x-1]!=empty){
+                if(game_board[y+1][x+1]!=empty){
                     string path = "center left";
                     return check_three_in_a_row_diagonal(x, y, path);//checks if the coordinate is the center of a diagonal three in a row in \ direction
                 }
                 else{
-                    top = game_board[y-2].locate(x-2);
-                    if(top!=nullptr){
+                    if(game_board[y-2][x-2]!=empty){
                         string path = "bottom right";
                         return check_three_in_a_row_diagonal(x, y, path);//checks if the coordinate is the bottom right of a diagonal three in  \ direction
                     }
                 }
             }
-            else if(bottom!=nullptr){
-                bottom = game_board[y+2].locate(x+2);
-                if(bottom!=nullptr){
+            else if(game_board[y+1][x+1]!=empty){
+                if(game_board[y+2][x+2]!=empty){
                     string path = "top left";
                     return check_three_in_a_row_diagonal(x, y, path);//checks if the coordinate is the top left of a diagonal three in  \ direction
                 }
             }
         }
     }
-    return nullptr;
+    return empty;
 }
 
 Piece* Boop::check_three_in_a_row_horizontal(int x, int y, string path){
     if(path == "center"){
-        Node* current = game_board[y].locate(x);
-        Node* right_neighbor = game_board[y].locate(x+1);
-        Node* left_neighbor = game_board[y].locate(x-1);
-        if(current->key->is_cat()){
-            if(right_neighbor->key->get_name()==current->key->get_name()){
-                if(right_neighbor->key->is_cat()){
-                    if(left_neighbor->key->get_name()==current->key->get_name()){
-                        if(left_neighbor->key->is_cat()){
-                            return current->key;
+        if(game_board[y][x]->is_cat()){
+            if(game_board[y][x+1]->get_name()==game_board[y][x]->get_name()){
+                if(game_board[y][x+1]->is_cat()){
+                    if(game_board[y][x-1]->get_name()==game_board[y][x]->get_name()){
+                        if(game_board[y][x-1]->is_cat()){
+                            return game_board[x][y];
                         }
                     }
                 }
@@ -503,15 +370,12 @@ Piece* Boop::check_three_in_a_row_horizontal(int x, int y, string path){
         }
     }
     if(path == "left"){
-        Node* current = game_board[y].locate(x);
-        Node* right_neighbor = game_board[y].locate(x+1);
-        Node* right_right_neighbor = game_board[y].locate(x+2);
-        if(current->key->is_cat()){
-            if(right_neighbor->key->get_name()==current->key->get_name()){
-                if(right_neighbor->key->is_cat()){
-                    if(right_right_neighbor->key->get_name()==current->key->get_name()){
-                        if(right_right_neighbor->key->is_cat()){
-                            return current->key;
+        if(game_board[y][x]->is_cat()){
+            if(game_board[y][x+1]->get_name()==game_board[y][x]->get_name()){
+                if(game_board[y][x+1]->is_cat()){
+                    if(game_board[y][x+2]->get_name()==game_board[y][x]->get_name()){
+                        if(game_board[y][x+2]->is_cat()){
+                            return game_board[y][x];
                         }
                     }
                 }
@@ -519,35 +383,29 @@ Piece* Boop::check_three_in_a_row_horizontal(int x, int y, string path){
         }
     }
     if(path == "right"){
-        Node* current = game_board[y].locate(x);
-        Node* left_neighbor = game_board[y].locate(x-1);
-        Node* left_left_neighbor = game_board[y].locate(x-2);
-        if(current->key->is_cat()){
-            if(left_neighbor->key->get_name()==current->key->get_name()){
-                if(left_neighbor->key->is_cat()){
-                    if(left_left_neighbor->key->get_name()==current->key->get_name()){
-                        if(left_left_neighbor->key->is_cat()){
-                            return current->key;
+        if(game_board[y][x]->is_cat()){
+            if(game_board[y][x-1]->get_name()==game_board[y][x]->get_name()){
+                if(game_board[y][x-1]->is_cat()){
+                    if(game_board[y][x-2]->get_name()==game_board[y][x]->get_name()){
+                        if(game_board[y][x+2]->is_cat()){
+                            return game_board[y][x];
                         }
                     }
                 }
             }
         }
     }
-    return nullptr;
+    return empty;
 }
 
 Piece* Boop::check_three_in_a_row_vertical(int x, int y, string path){
     if(path == "center"){
-        Node* current = game_board[y].locate(x);
-        Node* upper_neighbor = game_board[y-1].locate(x);
-        Node* lower_neighbor = game_board[y+1].locate(x);
-        if(current->key->is_cat()){
-            if(upper_neighbor->key->get_name()==current->key->get_name()){
-                if(upper_neighbor->key->is_cat()){
-                    if(lower_neighbor->key->get_name()==current->key->get_name()){
-                        if(lower_neighbor->key->is_cat()){
-                            return current->key;
+        if(game_board[y][x]->is_cat()){
+            if(game_board[y-1][x]->get_name()==game_board[y][x]->get_name()){
+                if(game_board[y-1][x]->is_cat()){
+                    if(game_board[y+1][x]->get_name()==game_board[y][x]->get_name()){
+                        if(game_board[y+1][x]->is_cat()){
+                            return game_board[y][x];
                         }
                     }
                 }
@@ -555,15 +413,12 @@ Piece* Boop::check_three_in_a_row_vertical(int x, int y, string path){
         }
     }
     if(path == "top"){
-        Node* current = game_board[y].locate(x);
-        Node* lower_neighbor = game_board[y+1].locate(x);
-        Node* lower_lower_neighbor = game_board[y+2].locate(x);
-        if(current->key->is_cat()){
-            if(lower_neighbor->key->get_name()==current->key->get_name()){
-                if(lower_neighbor->key->is_cat()){
-                    if(lower_lower_neighbor->key->get_name()==current->key->get_name()){
-                        if(lower_lower_neighbor->key->is_cat()){
-                            return current->key;
+        if(game_board[y][x]->is_cat()){
+            if(game_board[y+1][x]->get_name()==game_board[y][x]->get_name()){
+                if(game_board[y+1][x]->is_cat()){
+                    if(game_board[y+2][x]->get_name()==game_board[y][x]->get_name()){
+                        if(game_board[y+2][x]->is_cat()){
+                            return game_board[y][x];
                         }
                     }
                 }
@@ -571,35 +426,29 @@ Piece* Boop::check_three_in_a_row_vertical(int x, int y, string path){
         }
     }
     if(path == "bottom"){
-        Node* current = game_board[y].locate(x);
-        Node* upper_neighbor = game_board[y-1].locate(x);
-        Node* upper_upper_neighbor = game_board[y-2].locate(x);
-        if(current->key->is_cat()){
-            if(upper_neighbor->key->get_name()==current->key->get_name()){
-                if(upper_neighbor->key->is_cat()){
-                    if(upper_upper_neighbor->key->get_name()==current->key->get_name()){
-                        if(upper_upper_neighbor->key->is_cat()){
-                            return current->key;
+        if(game_board[y][x]->is_cat()){
+            if(game_board[y-1][x]->get_name()==game_board[y][x]->get_name()){
+                if(game_board[y-1][x]->is_cat()){
+                    if(game_board[y-2][x]->get_name()==game_board[y][x]->get_name()){
+                        if(game_board[y-2][x]->is_cat()){
+                            return game_board[y][x];
                         }
                     }
                 }
             }
         }
     }
-    return nullptr;
+    return empty;
 }
 
 Piece* Boop::check_three_in_a_row_diagonal(int x, int y, string path){
     if(path == "center right"){
-        Node* current = game_board[y].locate(x);
-        Node* top = game_board[y-1].locate(x+1);
-        Node* bottom = game_board[y+1].locate(x-1);
-        if(current->key->is_cat()){
-            if(top->key->get_name()==current->key->get_name()){
-                if(top->key->is_cat()){
-                    if(bottom->key->get_name()==current->key->get_name()){
-                        if(bottom->key->is_cat()){
-                            return current->key;
+        if(game_board[y][x]->is_cat()){
+            if(game_board[y-1][x+1]->get_name()==game_board[y][x]->get_name()){
+                if(game_board[y-1][x+1]->is_cat()){
+                    if(game_board[y+1][x-1]->get_name()==game_board[y][x]->get_name()){
+                        if(game_board[y+1][x-1]->is_cat()){
+                            return game_board[y][x];
                         }
                     }
                 }
@@ -607,15 +456,12 @@ Piece* Boop::check_three_in_a_row_diagonal(int x, int y, string path){
         }
     }
     if(path == "center left"){
-        Node* current = game_board[y].locate(x);
-        Node* top = game_board[y-1].locate(x-1);
-        Node* bottom = game_board[y+1].locate(x+1);
-        if(current->key->is_cat()){
-            if(top->key->get_name()==current->key->get_name()){
-                if(top->key->is_cat()){
-                    if(bottom->key->get_name()==current->key->get_name()){
-                        if(top->key->is_cat()){
-                            return current->key;
+        if(game_board[y][x]->is_cat()){
+            if(game_board[y-1][x-1]->get_name()==game_board[y][x]->get_name()){
+                if(game_board[y-1][x-1]->is_cat()){
+                    if(game_board[y+1][x+1]->get_name()==game_board[y][x]->get_name()){
+                        if(game_board[y+1][x+1]->is_cat()){
+                            return game_board[y][x];
                         }
                     }
                 }
@@ -623,15 +469,12 @@ Piece* Boop::check_three_in_a_row_diagonal(int x, int y, string path){
         }
     }
     if(path == "bottom left"){
-        Node* current = game_board[y].locate(x);
-        Node* top = game_board[y-1].locate(x+1);
-        Node* top_top = game_board[y-2].locate(x+2);
-        if(current->key->is_cat()){
-            if(top->key->get_name()==current->key->get_name()){
-                if(top->key->is_cat()){
-                    if(top_top->key->get_name()==current->key->get_name()){
-                        if(top_top->key->is_cat()){
-                            return current->key;
+        if(game_board[y][x]->is_cat()){
+            if(game_board[y-1][x+1]->get_name()==game_board[y][x]->get_name()){
+                if(game_board[y-1][x+1]->is_cat()){
+                    if(game_board[y-2][x+2]->get_name()==game_board[y][x]->get_name()){
+                        if(game_board[y-2][x+2]->is_cat()){
+                            return game_board[y][x];
                         } 
                     }
                 }
@@ -639,15 +482,12 @@ Piece* Boop::check_three_in_a_row_diagonal(int x, int y, string path){
         }
     }
     if(path == "bottom right"){
-        Node* current = game_board[y].locate(x);
-        Node* top = game_board[y-1].locate(x-1);
-        Node* top_top = game_board[y-2].locate(x-2);
-        if(current->key->is_cat()){
-            if(top->key->get_name()==current->key->get_name()){
-                if(top->key->is_cat()){
-                    if(top_top->key->get_name()==current->key->get_name()){
-                        if(top_top->key->is_cat()){
-                            return current->key;
+        if(game_board[y][x]->is_cat()){
+            if(game_board[y-1][x-1]->get_name()==game_board[y][x]->get_name()){
+                if(game_board[y-1][x-1]->is_cat()){
+                    if(game_board[y-2][x-2]->get_name()==game_board[y][x]->get_name()){
+                        if(game_board[y-2][x-2]->is_cat()){
+                            return game_board[y][x];
                         }
                     }
                 }
@@ -655,15 +495,12 @@ Piece* Boop::check_three_in_a_row_diagonal(int x, int y, string path){
         }
     }
     if(path == "top left"){
-        Node* current = game_board[y].locate(x);
-        Node* top = game_board[y+1].locate(x+1);
-        Node* top_top = game_board[y+2].locate(x+2);
-        if(current->key->is_cat()){
-            if(top->key->get_name()==current->key->get_name()){
-                if(top->key->is_cat()){
-                    if(top_top->key->get_name()==current->key->get_name()){
-                        if(top_top->key->is_cat()){
-                            return current->key;
+        if(game_board[y][x]->is_cat()){
+            if(game_board[y+1][x+1]->get_name()==game_board[y][x]->get_name()){
+                if(game_board[y+1][x+1]->is_cat()){
+                    if(game_board[y+2][x+2]->get_name()==game_board[y][x]->get_name()){
+                        if(game_board[y+2][x+2]->is_cat()){
+                            return game_board[y][x];
                         }
                     }
                 }
@@ -671,22 +508,19 @@ Piece* Boop::check_three_in_a_row_diagonal(int x, int y, string path){
         }
     }
     if(path == "top right"){
-        Node* current = game_board[y].locate(x);
-        Node* top = game_board[y+1].locate(x-1);
-        Node* top_top = game_board[y+2].locate(x-2);
-        if(current->key->is_cat()){
-            if(top->key->get_name()==current->key->get_name()){
-                if(top->key->is_cat()){
-                    if(top_top->key->get_name()==current->key->get_name()){
-                        if(top_top->key->is_cat()){
-                            return current->key;
+        if(game_board[y][x]->is_cat()){
+            if(game_board[y+1][x-1]->get_name()==game_board[y][x]->get_name()){
+                if(game_board[y+1][x-1]->is_cat()){
+                    if(game_board[y+2][x-2]->get_name()==game_board[y][x]->get_name()){
+                        if(game_board[y+2][x-2]->is_cat()){
+                            return game_board[y][x];
                         }
                     }
                 }
             }
         }   
     }
-    return nullptr;
+    return empty;
 }
 
 Player* Boop::check_eight(){
@@ -702,12 +536,11 @@ Player* Boop::check_eight(){
 Player* Boop::check_victory() {
     Piece* winning_piece;
     if(player_1_cat >= 3 || player_2_cat >= 3) {
-        for(int i = 0; i < SIZE; i++){
-            Node* current = game_board[i].get_head();
-            while(current != nullptr){
-                if(current->key->is_cat()){
-                    winning_piece = check_coordinates_for_three(i, current->location);
-                    if (winning_piece != nullptr) {
+        for(int y_axis = 0; y_axis < SIZE; y_axis++){
+            for(int x_axis = 0; x_axis < SIZE; x_axis++){
+                if(game_board[y_axis][x_axis]->is_cat()){
+                    winning_piece = check_coordinates_for_three(y_axis, x_axis);
+                    if (winning_piece != empty) {
                         return get_player(winning_piece);
                     }
                 }
