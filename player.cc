@@ -32,25 +32,36 @@ bool Player::check_pieces(string target) {
 }
 
 bool Player::check_cat() { 
+    int count = 0;
     for (int i = 0; i < (int) my_pieces.size(); i++) {
         if (my_pieces[i]->is_cat()) {
-            return true;
+            count++;
         }
+    }
+    if (count > 0) {
+        cout << "you have "<<count<< "cats" << endl;
+        return true;
     }
     return false;
 }
 
 bool Player::check_kitten() {
+    int count = 0;
     for (int i = 0; i < (int) my_pieces.size(); i++) {
         if (!my_pieces[i]->is_cat()) {
-            return true;
+            count++;
         }
+    }
+    if (count > 0) {
+        cout << "you have "<<count<< "kittens" << endl;
+        return true;
     }
     return false;
 }
 
 void Player::graduate_kittens() {
-    for (int i = 0; i < MAX_GRADUATION; i++) {
+    cout << "inside graduate kittens" << endl;
+    for (int i = 0; i < 3; i++) {
         my_pieces.push_back(new Cat(name));
         num_pieces++;
     }
@@ -71,11 +82,13 @@ Piece* Player::retrieve_piece(bool get_cat) {
 
 Piece* Player::retrieve_cat() {
     Piece* cat_piece = nullptr;
-    for (int i = 0; i < (int) my_pieces.size(); i++) {
-        if (my_pieces[i]->is_cat()) {
-            cat_piece = my_pieces[i];
-            my_pieces.erase(my_pieces.begin()+i);
-            break;
+    if (check_pieces("cat")) {
+        for (int i = 0; i < (int) my_pieces.size(); i++) {
+            if (my_pieces[i]->is_cat()) {
+                cat_piece = my_pieces[i];
+                my_pieces.erase(my_pieces.begin()+i);
+                break;
+            }
         }
     }
     return cat_piece;
@@ -83,11 +96,13 @@ Piece* Player::retrieve_cat() {
 
 Piece* Player::retrieve_kitten() {
     Piece* kitten_piece = nullptr;
-    for (int i = 0; i < (int) my_pieces.size(); i++) {
-        if (!my_pieces[i]->is_cat()) { 
-            kitten_piece = my_pieces[i];
-            my_pieces.erase(my_pieces.begin()+i);
-            break;
+    if (check_pieces("kitten")) {
+        for (int i = 0; i < (int) my_pieces.size(); i++) {
+            if (!my_pieces[i]->is_cat()) {
+                kitten_piece = my_pieces[i];
+                my_pieces.erase(my_pieces.begin()+i);
+                break;
+            }
         }
     }
     return kitten_piece;
