@@ -26,7 +26,8 @@ public:
     void boop_cat(Piece* cat_or_kitten, int x_loc, int y_loc);
     bool check_boop_path(int x_loc, int y_loc);
     void deduct_cats(Player*);
-    Piece* check_coordinates_for_three(int x, int y); 
+    Piece* check_coordinates_for_three(int x, int y);
+    Piece* check_three_in_a_row(int x, int y); 
     void graduation();
     void check_for_graduees(int x, int y);
     Piece* check_three_in_a_row_horizontal(int x, int y, std::string path);
