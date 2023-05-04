@@ -21,5 +21,5 @@ string Cat::get_name() {
 }
 
 void Cat::display() {
-    cout << "Cat "; // work on this after we have separate display
+    cout << "Cat ";
 }
