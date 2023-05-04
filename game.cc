@@ -89,43 +89,103 @@ void Boop::boop_cat(Piece* cat_or_kitten, int x_loc, int y_loc) {
 }
 
 void Boop::check_coordinates_for_boop(int x, int y){
-    if(x!=0){
-        if(!game_board[y][x-1]->is_empty()){
-        boop_piece(x-1, y, "left");
-        }
-    }
-    if(x!=5){
-        if(!game_board[y][x+1]->is_empty()){
-            boop_piece(x+1, y, "right");
-        }
-    }
-    if (y != 0) {
-        if(!game_board[y-1][x]->is_empty()){
-            boop_piece(x, y-1, "top");
-        }
-        if(x!=5){
-            if(!game_board[y-1][x+1]->is_empty()){
-            boop_piece(x+1, y-1, "top right");
-        }
-        }
+    if(game_board[y][x]->is_cat()){
         if(x!=0){
-            if(!game_board[y-1][x-1]->is_empty()){
-            boop_piece(x-1, y-1, "top left");
-        }
-        }
-    }
-    if (y != 5) {
-        if(!game_board[y+1][x]->is_empty()){
-                boop_piece(x, y+1, "bottom");
-            }
-        if(x!=0){
-            if(!game_board[y+1][x-1]->is_empty()){
-            boop_piece(x-1, y+1, "bottom left");
+            if(!game_board[y][x-1]->is_empty()){
+            boop_piece(x-1, y, "left");
             }
         }
         if(x!=5){
-            if(!game_board[y+1][x+1]->is_empty()){
-                boop_piece(x+1, y+1, "bottom right");
+            if(!game_board[y][x+1]->is_empty()){
+                boop_piece(x+1, y, "right");
+            }
+        }
+        if (y != 0) {
+            if(!game_board[y-1][x]->is_empty()){
+                boop_piece(x, y-1, "top");
+            }
+            if(x!=5){
+                if(!game_board[y-1][x+1]->is_empty()){
+                boop_piece(x+1, y-1, "top right");
+            }
+            }
+            if(x!=0){
+                if(!game_board[y-1][x-1]->is_empty()){
+                boop_piece(x-1, y-1, "top left");
+            }
+            }
+        }
+        if (y != 5) {
+            if(!game_board[y+1][x]->is_empty()){
+                    boop_piece(x, y+1, "bottom");
+                }
+            if(x!=0){
+                if(!game_board[y+1][x-1]->is_empty()){
+                boop_piece(x-1, y+1, "bottom left");
+                }
+            }
+            if(x!=5){
+                if(!game_board[y+1][x+1]->is_empty()){
+                    boop_piece(x+1, y+1, "bottom right");
+                }
+            }
+        }
+    }
+    else{
+        if(x!=0){
+            if(!game_board[y][x-1]->is_empty()){
+                if(!game_board[y][x-1]->is_cat()){
+                    boop_piece(x-1, y, "left");
+                }
+            }
+        }
+        if(x!=5){
+            if(!game_board[y][x+1]->is_empty()){
+                if(!game_board[y][x+1]->is_cat()){
+                    boop_piece(x+1, y, "right");
+                }
+            }
+        }
+        if (y != 0) {
+            if(!game_board[y-1][x]->is_empty()){
+                if(!game_board[y-1][x]->is_cat()){
+                    boop_piece(x, y-1, "top");
+                }
+            }
+            if(x!=5){
+                if(!game_board[y-1][x+1]->is_empty()){
+                    if(!game_board[y-1][x+1]->is_cat()){
+                        boop_piece(x+1, y-1, "top right");
+                    }
+                }
+            }
+            if(x!=0){
+                if(!game_board[y-1][x-1]->is_empty()){
+                    if(!game_board[y-1][x-1]->is_cat()){
+                        boop_piece(x-1, y-1, "top left");
+                    }
+                }
+            }
+        }
+        if (y != 5) {
+            if(!game_board[y+1][x]->is_empty()){
+                if(!game_board[y+1][x]->is_cat()){
+                    boop_piece(x, y+1, "bottom");
+                }
+            }
+            if(x!=0){
+                if(!game_board[y+1][x-1]->is_empty()){
+                    if(!game_board[y+1][x-1]->is_cat()){
+                        boop_piece(x-1, y+1, "bottom left");
+                    }
+                }
+            }
+            if(x!=5){
+                if(!game_board[y+1][x+1]->is_empty()){
+                    if(!game_board[y+1][x+1]->is_cat()){
+                        boop_piece(x+1, y+1, "bottom right");
+                    }
+                }
             }
         }
     }
@@ -419,10 +479,39 @@ void Boop::check_for_graduees(int x, int y){
         if(x!=5){
             if(game_board[y][x]->get_name() == game_board[y][x-1]->get_name() &&
             game_board[y][x]->get_name() == game_board[y][x+1]->get_name()){//checks if graduee is in the center of two other cats of the 
+                get_player(game_board[y][x])->graduate_kittens();
                 delete_from_board(x,y);
                 delete_from_board(x+1,y);
                 delete_from_board(x-1,y);
-                get_player(game_board[y][x])->graduate_kittens();
+                return;
+            }
+            if(y!=0){
+                if(y!=5){
+                    if(game_board[y][x]->get_name() == game_board[y-1][x+1]->get_name() &&
+                    game_board[y][x]->get_name() == game_board[y+1][x-1]->get_name()){
+                        get_player(game_board[y][x])->graduate_kittens();
+                        delete_from_board(x,y);
+                        delete_from_board(x+1,y-1);
+                        delete_from_board(x-1,y+1);
+                        return;
+                    }
+                    else if(game_board[y][x]->get_name() == game_board[y+1][x+1]->get_name() &&
+                    game_board[y][x]->get_name()== game_board[y-1][x-1]->get_name()){
+                        get_player(game_board[y][x])->graduate_kittens();
+                        delete_from_board(x,y);
+                        delete_from_board(x+1,y+1);
+                        delete_from_board(x-1,y-1);
+                        return;
+                    }
+                    else if(game_board[y][x]->get_name() == game_board[y+1][x-1]->get_name() &&
+                    game_board[y][x]->get_name() == game_board[y-1][x+1]->get_name()){
+                        get_player(game_board[y][x])->graduate_kittens();
+                        delete_from_board(x,y);
+                        delete_from_board(x-1,y-1);
+                        delete_from_board(x+1,y-1);
+                        return;
+                    }
+                }        
             }
         }
     }
@@ -430,39 +519,12 @@ void Boop::check_for_graduees(int x, int y){
         if(y!=5){
             if(game_board[y][x]->get_name() == game_board[y-1][x]->get_name() &&
             game_board[y][x]->get_name()== game_board[y+1][x]->get_name()){
+                get_player(game_board[y][x])->graduate_kittens();
                 delete_from_board(x,y);
                 delete_from_board(x,y+1);
                 delete_from_board(x,y-1);
-                get_player(game_board[y][x])->graduate_kittens();
-            }
-        }
-    }
-    if(x!=0){
-        if(x!=5){
-            if(y!=0){
-                if(y!=5){
-                    if(game_board[y][x]->get_name() == game_board[y-1][x+1]->get_name() &&
-                    game_board[y][x]->get_name() == game_board[y+1][x-1]->get_name()){
-                        delete_from_board(x,y);
-                        delete_from_board(x+1,y-1);
-                        delete_from_board(x-1,y+1);
-                        get_player(game_board[y][x])->graduate_kittens();
-                    }
-                    else if(game_board[y][x]->get_name() == game_board[y+1][x+1]->get_name() &&
-                    game_board[y][x]->get_name()== game_board[y-1][x-1]->get_name()){
-                        delete_from_board(x,y);
-                        delete_from_board(x+1,y+1);
-                        delete_from_board(x-1,y-1);
-                        get_player(game_board[y][x])->graduate_kittens();
-                    }
-                    else if(game_board[y][x]->get_name() == game_board[y+1][x-1]->get_name() &&
-                    game_board[y][x]->get_name() == game_board[y-1][x+1]->get_name()){
-                        delete_from_board(x,y);
-                        delete_from_board(x-1,y-1);
-                        delete_from_board(x+1,y-1);
-                        get_player(game_board[y][x])->graduate_kittens();
-                    }
-                }        
+
+                return;
             }
         }
     }
