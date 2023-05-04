@@ -4,6 +4,15 @@
 #include "kitten.h"
 #include "cat.h"
 #include "piece.h"
+
+/**
+ *
+ * BOOP-Project-08
+ * Alexis Ortiz
+ * David Bayatbayar
+ * 2/1/23 
+ */
+
 using namespace std;
 
 int main() {
