@@ -13,7 +13,7 @@ Player::Player(string given_name)
     num_pieces(8)
 {
     for (int i = 0; i < MAX_NUM; i++) {
-        my_pieces.push_back(new Cat(name));
+        my_pieces.push_back(new Kitten(name));
     }
 }
 
