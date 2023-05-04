@@ -65,6 +65,7 @@ Player* Boop::get_player(Piece* target_piece) {
 }
 
 bool Boop::place_piece(Piece* cat_or_kitten, int x, int y) {
+    cout << "PLACE_PIECE" << endl;
     if(!game_board[y][x]->is_empty()){
         cout << "Uh oh! That spot is already taken! Try again!" << endl;
         return false;
@@ -92,7 +93,7 @@ void Boop::check_coordinates_for_boop(int x, int y){
     if(game_board[y][x]->is_cat()){
         if(x!=0){
             if(!game_board[y][x-1]->is_empty()){
-            boop_piece(x-1, y, "left");
+                boop_piece(x-1, y, "left");
             }
         }
         if(x!=5){
@@ -106,22 +107,22 @@ void Boop::check_coordinates_for_boop(int x, int y){
             }
             if(x!=5){
                 if(!game_board[y-1][x+1]->is_empty()){
-                boop_piece(x+1, y-1, "top right");
+                    boop_piece(x+1, y-1, "top right");
             }
             }
             if(x!=0){
                 if(!game_board[y-1][x-1]->is_empty()){
-                boop_piece(x-1, y-1, "top left");
+                    boop_piece(x-1, y-1, "top left");
             }
             }
         }
         if (y != 5) {
             if(!game_board[y+1][x]->is_empty()){
-                    boop_piece(x, y+1, "bottom");
+                boop_piece(x, y+1, "bottom");
                 }
             if(x!=0){
                 if(!game_board[y+1][x-1]->is_empty()){
-                boop_piece(x-1, y+1, "bottom left");
+                    boop_piece(x-1, y+1, "bottom left");
                 }
             }
             if(x!=5){
@@ -191,7 +192,7 @@ void Boop::check_coordinates_for_boop(int x, int y){
     }
 }
 
-Piece* Boop::remove_button(int x_loc, int y_loc){ // DELETE LINE IS SKETCHY HERE
+Piece* Boop::remove_button(int x_loc, int y_loc){ 
     Piece* removed_piece = game_board[y_loc][x_loc];
     Piece* thingy = new Empty("game");
     game_board[y_loc][x_loc] = thingy;
@@ -344,19 +345,31 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
             if(removed_piece->is_cat()){
                 deduct_cats(temp);
             }
+            return;
         }
         else{
-            if(y_loc == 5 || x_loc == 5){
+            if(y_loc == 5){
                 Piece* removed_piece = remove_button(x_loc, y_loc);
                 Player* temp = get_player(removed_piece);
                 temp->receive_pieces(removed_piece);
                 if(removed_piece->is_cat()){
                     deduct_cats(temp);
                 }
+                return;
+            }
+            else if(x_loc == 5){
+                Piece* removed_piece = remove_button(x_loc, y_loc);
+                Player* temp = get_player(removed_piece);
+                temp->receive_pieces(removed_piece);
+                if(removed_piece->is_cat()){
+                    deduct_cats(temp);
+                }
+                return;
             }
             if(check_boop_path(x_loc+1, y_loc+1)){
                 Piece* removed_piece = remove_button(x_loc, y_loc);
                 boop_cat(removed_piece, x_loc+1, y_loc+1);
+                return;
             }
         }
     }
@@ -368,6 +381,7 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
             if(removed_piece->is_cat()){
                 deduct_cats(temp);
             }
+            return;
         }
         else{
             if(y_loc == 5 || x_loc == 0){
@@ -377,10 +391,12 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
                 if(removed_piece->is_cat()){
                     deduct_cats(temp);
                 }
+                return;
             }
            if(check_boop_path(x_loc-1, y_loc+1)){
                 Piece* removed_piece = remove_button(x_loc, y_loc);
                 boop_cat(removed_piece, x_loc-1, y_loc+1);
+                return;
             }
         }
     }
@@ -388,6 +404,7 @@ void Boop::boop_piece(int x_loc, int y_loc, string path) {
 
 Piece* Boop::check_coordinates_for_three(int x, int y){
     if(!game_board[y][x+1]->is_empty()){//checks if the coordineate is to the left of another piece
+        
         if(!game_board[y][x-1]->is_empty()){//checks if the coordinate is the center of three in a row
             string path = "center";
             return check_three_in_a_row_horizontal(x, y, path);
@@ -461,7 +478,7 @@ Piece* Boop::check_coordinates_for_three(int x, int y){
             }
         }
     }
-    return nullptr;
+    return new Empty("game");
 }
 
 void Boop::graduation(){
@@ -472,6 +489,72 @@ void Boop::graduation(){
             }
         }
     }
+}
+
+Piece* Boop::check_three_in_a_row(int x, int y) {
+    if(x!=0){
+        if(x!=5){
+            if(game_board[y][x]->get_name() == game_board[y][x-1]->get_name() &&
+            game_board[y][x]->get_name() == game_board[y][x+1]->get_name()){//checks if graduee is in the center of two other cats of the 
+                if (game_board[y][x-1]->is_cat() && game_board[y][x+1]->is_cat()) {
+                    get_player(game_board[y][x])->graduate_kittens();
+                    delete_from_board(x,y);
+                    delete_from_board(x+1,y);
+                    delete_from_board(x-1,y);
+                    return game_board[y][x];
+                }
+            }
+            if(y!=0){
+                if(y!=5){
+                    if(game_board[y][x]->get_name() == game_board[y-1][x+1]->get_name() &&
+                    game_board[y][x]->get_name() == game_board[y+1][x-1]->get_name()){
+                        if(game_board[y-1][x+1]->is_cat() && game_board[y+1][x-1]->is_cat()){
+                            get_player(game_board[y][x])->graduate_kittens();
+                            delete_from_board(x,y);
+                            delete_from_board(x+1,y-1);
+                            delete_from_board(x-1,y+1);
+                            return game_board[y][x];
+                        }
+                    }
+                    else if(game_board[y][x]->get_name() == game_board[y+1][x+1]->get_name() &&
+                    game_board[y][x]->get_name()== game_board[y-1][x-1]->get_name()){
+                        if (game_board[y+1][x+1]->is_cat() && game_board[y-1][x-1]->is_cat()) {
+                            get_player(game_board[y][x])->graduate_kittens();
+                            delete_from_board(x,y);
+                            delete_from_board(x+1,y+1);
+                            delete_from_board(x-1,y-1);
+                            return game_board[y][x];
+                        }
+                    }
+                    else if(game_board[y][x]->get_name() == game_board[y+1][x-1]->get_name() &&
+                    game_board[y][x]->get_name() == game_board[y-1][x+1]->get_name()){
+                        if(game_board[y+1][x-1]->is_cat() && game_board[y-1][x+1]->is_cat()){
+                            get_player(game_board[y][x])->graduate_kittens();
+                            delete_from_board(x,y);
+                            delete_from_board(x-1,y-1);
+                            delete_from_board(x+1,y-1);
+                            return game_board[y][x];
+                        }
+                    }
+                }        
+            }
+        }
+    }
+    if(y!=0){
+        if(y!=5){
+            if(game_board[y][x]->get_name() == game_board[y-1][x]->get_name() &&
+            game_board[y][x]->get_name()== game_board[y+1][x]->get_name()){
+                if (game_board[y-1][x]->is_cat() && game_board[y+1][x]->is_cat()) {
+                    get_player(game_board[y][x])->graduate_kittens();
+                    delete_from_board(x,y);
+                    delete_from_board(x,y+1);
+                    delete_from_board(x,y-1);
+                    return game_board[y][x];
+                }
+            }
+        }
+    }
+    return new Empty("game");
 }
 
 void Boop::check_for_graduees(int x, int y){
@@ -570,7 +653,7 @@ Piece* Boop::check_three_in_a_row_horizontal(int x, int y, string path){
             }
         }
     }
-    return nullptr;
+    return new Empty("game");
 }
 
 Piece* Boop::check_three_in_a_row_vertical(int x, int y, string path){
@@ -613,7 +696,7 @@ Piece* Boop::check_three_in_a_row_vertical(int x, int y, string path){
             }
         }
     }
-    return nullptr;
+    return new Empty("game");
 }
 
 Piece* Boop::check_three_in_a_row_diagonal(int x, int y, string path){
@@ -695,7 +778,7 @@ Piece* Boop::check_three_in_a_row_diagonal(int x, int y, string path){
             }
         }   
     }
-    return nullptr;
+    return new Empty("game");
 }
 
 Player* Boop::check_eight(){
@@ -714,7 +797,8 @@ Player* Boop::check_victory() {
         for(int y_axis = 0; y_axis < SIZE; y_axis++){
             for(int x_axis = 0; x_axis < SIZE; x_axis++){
                 if(game_board[y_axis][x_axis]->is_cat()){
-                    winning_piece = check_coordinates_for_three(y_axis, x_axis);
+                    // winning_piece = check_coordinates_for_three(y_axis, x_axis);
+                    winning_piece = check_three_in_a_row(x_axis, y_axis);
                     if (!winning_piece->is_empty()) {
                         return get_player(winning_piece);
                     }
@@ -730,6 +814,7 @@ void Boop::player_turn(int player_num) {
     char player_choice;
     Piece* play_piece;
     int x_loc, y_loc;
+    bool repeat = false;
     if (player_num == 1) {
         current = player_1;
     }
@@ -738,19 +823,47 @@ void Boop::player_turn(int player_num) {
     }
     cout << endl << current->get_name() << "'s turn: "<< endl;
     current->display_pieces();
-    cout << "Please choose which you would like to play" << endl;
+    while (true) {
+    cout << "Please choose which you would like to play";
+    if (repeat == true) {
+        cout << " again.";
+    }
+    cout << endl;
     cout << "A. Cat         B. Kitten" << endl;
     cin >> player_choice;
-    if (toupper(player_choice) == 'A') {
-        play_piece = current->retrieve_cat();
+        if (toupper(player_choice) == 'A') {
+            if (current->check_cat()) {
+                play_piece = current->retrieve_cat();
+                break;
+            }
+        }
+        else if(toupper(player_choice) == 'B'){
+            if (current->check_kitten()) {
+            play_piece = current->retrieve_kitten();
+            break;
+            }
+        }
+        repeat = true;
+    }    
+    repeat = false;
+    while (true) {
+        if (repeat == false) {
+            cout << "Where would you like to put the piece?" << endl;
+        }
+        else {
+            cout << "Where ON THE 6x6 BOARD would you like to put the piece?" << endl;
+        }
+        cout << "Please enter x, y coordinate: " << endl;
+        cin >> x_loc;
+        cin >> y_loc;
+        if (x_loc <= 6 && x_loc > 0){
+            if (y_loc <= 6 && y_loc > 0){
+                break;
+            }
+        }
+        repeat = true;
     }
-    else if(toupper(player_choice) == 'B'){
-        play_piece = current->retrieve_kitten();
-    }
-    cout << "Where would you like to put the piece?" << endl;
-    cout << "Please enter x, y coordinate: " << endl;
-    cin >> x_loc;
-    cin >> y_loc;
+    repeat = false;
     x_loc--;
     y_loc--;
     bool turn_complete = place_piece(play_piece, x_loc, y_loc);
@@ -782,6 +895,7 @@ void Boop::play_game(){
         display();
         turn_count++;
     }
+    display();
     Player* winner = check_victory();
     cout << winner->get_name() << " is the winner!" << endl;
     return;
