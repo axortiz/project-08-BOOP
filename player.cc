@@ -9,36 +9,62 @@ using namespace std;
 using namespace constants;
 
 Player::Player(string given_name) 
-    :name(given_name)
+    :name(given_name),
+    num_pieces(8)
 {
     for (int i = 0; i < MAX_NUM; i++) {
-        my_pieces.push_back(new Kitten(name));
+        my_pieces.push_back(new Cat(name));
     }
-    num_pieces = (int) my_pieces.size();
 }
 
 string Player::get_name(){
     return name;
 }
 
-void Player::graduate_kittens(int num_graduee) {
-    for (int i = 0; i < num_graduee; i++) {
+bool Player::check_pieces(string target) {
+    if (target == "cat") {
+        return check_cat();
+    }
+    else if (target == "kitten") {
+        return check_kitten();
+    }
+    return false;
+}
+
+bool Player::check_cat() { 
+    for (int i = 0; i < (int) my_pieces.size(); i++) {
+        if (my_pieces[i]->is_cat()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Player::check_kitten() {
+    for (int i = 0; i < (int) my_pieces.size(); i++) {
+        if (!my_pieces[i]->is_cat()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Player::graduate_kittens() {
+    for (int i = 0; i < MAX_GRADUATION; i++) {
         my_pieces.push_back(new Cat(name));
-        num_pieces = (int) my_pieces.size();
+        num_pieces++;
     }
 }
 
 Piece* Player::retrieve_piece(bool get_cat) {
     Piece* target_piece = nullptr;
-    if ((int) my_pieces.size() > 0) {
-        if (get_cat) {
-            target_piece = retrieve_cat();
-            num_pieces = (int) my_pieces.size();
-        }
-        else {
-            target_piece = retrieve_kitten();
-            num_pieces = (int) my_pieces.size();
-        }
+    if (get_cat) {
+        target_piece = retrieve_cat();
+        num_pieces--;
+    }
+    else {
+        target_piece = retrieve_kitten();
+        num_pieces--;
     }
     return target_piece;
 }
@@ -72,9 +98,6 @@ void Player::display_pieces() {
 }
 
 void Player::receive_pieces(Piece* booped) {
-    if (num_pieces >= MAX_NUM){
-        cout << "error too many pieces" << endl;
-    }
     my_pieces.push_back(booped);
-    num_pieces = (int) my_pieces.size();
+    num_pieces++;
 }
