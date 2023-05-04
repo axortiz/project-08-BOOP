@@ -15,7 +15,10 @@ protected:
 public:
     Player(std::string);
     std::string get_name();
-    void graduate_kittens(int num_graduee);
+    bool check_pieces(std::string target);
+    bool check_cat();
+    bool check_kitten();
+    void graduate_kittens();
     Piece* retrieve_piece(bool get_cat);
     Piece* retrieve_cat();
     Piece* retrieve_kitten();
